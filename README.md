@@ -1,8 +1,7 @@
-
 # 🔐 SOC Investigation: Perimeter Log Analysis & Threat Hunting
 
 ## 📖 Overview
-This project demonstrates a hands-on Security Operations Center (SOC) investigation using real-world log sources. The objective was to analyze perimeter logs, detect malicious activity, and track the full attack lifecycle.
+This project demonstrates a hands-on Security Operations Center (SOC) investigation using real-world log sources. The objective was to analyze perimeter logs, detect malicious activity, and trace the complete attack lifecycle from reconnaissance to data exfiltration.
 
 ---
 
@@ -17,43 +16,87 @@ This project demonstrates a hands-on Security Operations Center (SOC) investigat
 - Detect reconnaissance activity
 - Identify brute-force attacks
 - Investigate lateral movement
-- Detect Command & Control (C2)
+- Detect Command & Control (C2) communication
 - Analyze data exfiltration attempts
 
 ---
 
-## 🔍 Investigation Steps & Findings
+## 🔍 Key Findings
 
-### 1️⃣ Reconnaissance Detection
+### 🔹 Reconnaissance Activity
 - External attacker IP identified: **203.0.113.45**
-- Multiple ports scanned across internal systems
-- Additional suspicious IP: **203.0.113.10**
+- Scanned multiple internal systems across different ports
+- Additional suspicious IP observed: **203.0.113.10**
 
 ---
 
-### 2️⃣ Brute-Force Attack
+### 🔹 Brute-Force Attack
 - **118 failed login attempts**
 - Source IP: **203.0.113.45**
 - Target: VPN authentication service
+- Indicates credential brute-force attack
 
 ---
 
-### 3️⃣ Lateral Movement
+### 🔹 Lateral Movement
 - SMB exploitation detected (**Port 445**)
-- Compromised system used for internal pivoting
+- Compromised host used to pivot across internal systems
 
 ---
 
-### 4️⃣ Command & Control (C2)
+### 🔹 Command & Control (C2)
 - Beaconing behavior observed
-- Repeated outbound connections to attacker-controlled infrastructure
+- Repeated outbound connections to external attacker infrastructure
 
 ---
 
-### 5️⃣ Data Exfiltration
+### 🔹 Data Exfiltration
 - Compromised Host: **10.0.0.51**
-- High-volume outbound traffic detected
+- High volume of outbound traffic detected
 - Indicates potential data exfiltration
+
+---
+
+## ⏱️ Attack Timeline
+
+1. Reconnaissance → Attacker scans network (**203.0.113.45**)  
+2. Brute-force → 118 failed VPN login attempts  
+3. Lateral Movement → SMB exploitation (Port 445)  
+4. C2 Communication → Beaconing activity detected  
+5. Data Exfiltration → Host **10.0.0.51** sends large outbound traffic  
+
+---
+
+## 🧬 MITRE ATT&CK Mapping
+
+| Attack Stage        | Technique ID | Description |
+|--------------------|-------------|-------------|
+| Reconnaissance     | T1595       | Active Scanning |
+| Brute Force        | T1110       | Credential Access |
+| Lateral Movement   | T1021       | SMB/Remote Services |
+| C2 Communication   | T1071       | Application Layer Protocol |
+| Data Exfiltration  | T1041       | Exfiltration Over C2 Channel |
+
+---
+
+## 💻 Commands Used
+
+```bash
+# Identify attacker IP activity
+grep "203.0.113.45" firewall.log
+
+# Count failed login attempts
+grep "Failed" vpn_auth.log | wc -l
+
+# Find most frequent IPs
+awk '{print $1}' firewall.log | sort | uniq -c | sort -nr
+
+# Detect SMB activity
+grep ":445" firewall.log
+
+# Identify large outbound traffic
+grep "10.0.0.51" firewall.log
+```
 
 ---
 
@@ -66,22 +109,13 @@ This project demonstrates a hands-on Security Operations Center (SOC) investigat
 
 ---
 
-## ⚙️ Tools & Commands Used
-- `grep`
-- `awk`
-- `sort`
-- `uniq`
-- `cut`
-- `wc`
-
----
 
 ## 📊 Key Takeaway
-This project highlights a real-world attack progression:
+This project demonstrates a real-world cyber attack lifecycle:
 
-Reconnaissance → Brute-force → Lateral Movement → C2 → Data Exfiltration
+**Reconnaissance → Brute-force → Lateral Movement → C2 → Data Exfiltration**
 
-Understanding this lifecycle is critical for detecting and responding to advanced threats in a SOC environment.
+Understanding and detecting these stages is critical for effective SOC operations and incident response.
 
 ---
 
@@ -90,3 +124,9 @@ Understanding this lifecycle is critical for detecting and responding to advance
 - LinkedIn: https://linkedin.com/in/faraz-kachelo-b180267a  
 
 ---
+
+## ⭐ Future Improvements
+- Automate detection using Python scripts
+- Integrate SIEM-based alerting
+- Add threat intelligence enrichment
+- Visualize attack patterns using dashboards
